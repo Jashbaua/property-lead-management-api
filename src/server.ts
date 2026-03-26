@@ -1,18 +1,17 @@
 import 'dotenv/config'; 
 import express, { Request, Response } from 'express';
 import { errorHandler } from './middleware/errorHandler';
+import authRoutes from './routes/auth.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+app.use('/auth', authRoutes);
+
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello world');
-});
-
-app.get('/error', (req: Request, res: Response) => {
-  throw new Error('test');
 });
 
 app.use(errorHandler);
