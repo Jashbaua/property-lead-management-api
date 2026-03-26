@@ -11,3 +11,78 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  Admin
+  Agent
+}
+
+enum PropertyStatus {
+  Available
+  Booked
+}
+
+enum LeadStatus {
+  New
+  Contacted
+  Visited
+  Booked
+  Lost
+}
+
+enum LeadPriority {
+  Hot
+  Warm
+  Cold
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          Role     @default(Agent)
+  created_at    DateTime @default(now())
+
+  @@map("users")
+}
+
+model Property {
+  id         String         @id @default(uuid())
+  title      String
+  address    String
+  city       String
+  price      Float
+  bedrooms   Int
+  status     PropertyStatus @default(Available)
+  created_at DateTime       @default(now())
+
+  leads      Lead[]         
+
+  @@index([city])
+  @@index([status])
+  @@index([bedrooms])
+  @@map("properties")
+}
+
+model Lead {
+  id          String       @id @default(uuid())
+  buyer_name  String
+  phone       String
+  email       String
+  property_id String
+  status      LeadStatus   @default(New)
+  priority    LeadPriority @default(Cold)
+  notes       String?      
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  property    Property     @relation(fields: [property_id], references: [id])
+
+  @@index([status])
+  @@index([priority])
+  @@index([property_id])
+  
+  @@unique([phone, property_id])
+  @@map("leads")
+}
