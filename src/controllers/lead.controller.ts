@@ -10,6 +10,12 @@ const createLeadSchema = z.object({
   property_id: z.uuid('Invalid property ID format'),
 });
 
+const updateLeadSchema = z.object({
+  priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
+  notes: z.string().optional(),
+});
+
+
 export const createLead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const validationResult = createLeadSchema.safeParse(req.body);
@@ -134,3 +140,56 @@ export const getLeadById = async (req: Request, res: Response, next: NextFunctio
     next(error);
   }
 };
+
+export const updateLead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+
+    if (req.body.status) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Cannot update status here. Please use the /transition endpoint.' 
+      });
+      return;
+    }
+
+    const validationResult = updateLeadSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationResult.error.issues.map((err) => `${err.path.join('.')}: ${err.message}`),
+      });
+      return;
+    }
+
+    const { priority, notes } = validationResult.data;
+
+    const existingLead = await prisma.lead.findUnique({
+      where: { id },
+    });
+
+    if (!existingLead) {
+      res.status(404).json({ success: false, message: 'Lead not found' });
+      return;
+    }
+
+    const updatedLead = await prisma.lead.update({
+      where: { id },
+      data: {
+        ...(priority && { priority }),
+        ...(notes !== undefined && { notes }),
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Lead updated successfully',
+      data: updatedLead,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
