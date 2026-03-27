@@ -251,10 +251,27 @@ export const transitionLeadStatus = async (req: Request, res: Response, next: Ne
       return;
     }
 
-    const updatedLead = await prisma.lead.update({
-      where: { id },
-      data: { status: requestedStatus as LeadStatus },
-    });
+    let updatedLead;
+
+    if (requestedStatus === 'Booked') {
+      const result = await prisma.$transaction([
+        prisma.lead.update({
+          where: { id },
+          data: { status: requestedStatus as LeadStatus },
+        }),
+        prisma.property.update({
+          where: { id: lead.property_id },
+          data: { status: 'Booked' }, 
+        }),
+      ]);
+      
+      updatedLead = result[0]; 
+    } else {
+      updatedLead = await prisma.lead.update({
+        where: { id },
+        data: { status: requestedStatus as LeadStatus },
+      });
+    }
 
     res.status(200).json({
       success: true,
