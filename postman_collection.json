@@ -1,0 +1,331 @@
+{
+  "info": {
+    "_postman_id": "87e887b6-b603-4d95-a096-c81247c68288",
+    "name": "Property Lead API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53531055",
+    "_collection_link": "https://go.postman.co/collection/53531055-87e887b6-b603-4d95-a096-c81247c68288?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"admin@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Properties - Get All",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/properties?city=Austin&limit=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "properties"
+          ],
+          "query": [
+            {
+              "key": "city",
+              "value": "Austin"
+            },
+            {
+              "key": "limit",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Properties - Get by ID",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/properties/20b16cd8-2a1f-465e-b73a-ff673dedfa44",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "properties",
+            "20b16cd8-2a1f-465e-b73a-ff673dedfa44"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Leads - Create Lead",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"buyer_name\": \"Test Buyer\",\r\n  \"email\": \"test@buyer.com\",\r\n  \"phone\": \"9998887777\",\r\n  \"property_id\": \"f370ddb5-6ec0-482e-b0a6-b1a27fa99112\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/leads",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Leads - Get All",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/leads?limit=5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Leads - Get by ID",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/leads/9627f243-d7fa-490f-a489-2ce34c64aefe",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads",
+            "9627f243-d7fa-490f-a489-2ce34c64aefe"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Leads - Update Lead",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"priority\": \"Hot\",\r\n  \"notes\": \"Very interested.\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/leads/9627f243-d7fa-490f-a489-2ce34c64aefe",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads",
+            "9627f243-d7fa-490f-a489-2ce34c64aefe"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Leads - Transition Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"status\": \"Booked\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/leads/72ae8be8-2653-477a-881d-9bd082b80286/transition",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads",
+            "72ae8be8-2653-477a-881d-9bd082b80286",
+            "transition"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Dashboard - Summary",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3OTM0MDUwZS0zZmY1LTQwNzItODI5Ny04MTA2MDM0ZWM0OGEiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NzQ1NDk5MzQsImV4cCI6MTc3NDYzNjMzNH0.S6Zc26aMofxrEM3dVFqEEm-7OStdYQQK0lKcn3FVZmw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"status\": \"Booked\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/leads/72ae8be8-2653-477a-881d-9bd082b80286/transition",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "leads",
+            "72ae8be8-2653-477a-881d-9bd082b80286",
+            "transition"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
