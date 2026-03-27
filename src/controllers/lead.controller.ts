@@ -15,6 +15,11 @@ const updateLeadSchema = z.object({
   notes: z.string().optional(),
 });
 
+const transitionLeadSchema = z.object({
+  status: z.enum(['New', 'Contacted', 'Visited', 'Booked', 'Lost'], {
+    message: "Status must be 'New', 'Contacted', 'Visited', 'Booked', or 'Lost'",
+  }),
+});
 
 export const createLead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -193,3 +198,70 @@ export const updateLead = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+export const transitionLeadStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+
+    const validationResult = transitionLeadSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationResult.error.issues.map((err) => `${err.path.join('.')}: ${err.message}`),
+      });
+      return;
+    }
+
+    const requestedStatus = validationResult.data.status;
+
+    const lead = await prisma.lead.findUnique({
+      where: { id },
+    });
+
+    if (!lead) {
+      res.status(404).json({ success: false, message: 'Lead not found' });
+      return;
+    }
+
+    const currentStatus = lead.status;
+
+    const allowedTransitions: Record<LeadStatus, LeadStatus[]> = {
+      New: ['Contacted', 'Lost'],
+      Contacted: ['Visited', 'Lost'],
+      Visited: ['Booked', 'Lost'],
+      Booked: [], 
+      Lost: [],   
+    };
+
+    if (currentStatus === 'Booked' || currentStatus === 'Lost') {
+      res.status(400).json({ 
+        success: false, 
+        message: `Cannot transition from '${currentStatus}'. This is a terminal state.` 
+      });
+      return;
+    }
+
+    if (!allowedTransitions[currentStatus].includes(requestedStatus as LeadStatus)) {
+      const nextValid = allowedTransitions[currentStatus].filter(s => s !== 'Lost').join(' or ');
+      res.status(400).json({ 
+        success: false, 
+        message: `Cannot move from '${currentStatus}' to '${requestedStatus}'. Next valid status is '${nextValid}'.` 
+      });
+      return;
+    }
+
+    const updatedLead = await prisma.lead.update({
+      where: { id },
+      data: { status: requestedStatus as LeadStatus },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Lead successfully transitioned to '${requestedStatus}'`,
+      data: updatedLead,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
