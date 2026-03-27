@@ -14,3 +14,6 @@
 
 4. Start the development server:
    npm run dev
+
+5. Running tests:
+   npm test
