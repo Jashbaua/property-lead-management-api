@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import prisma from '../prisma';
+import { LeadPriority, LeadStatus } from '../generated/prisma/client';
 
 const createLeadSchema = z.object({
   buyer_name: z.string().min(1, 'Buyer name is required'),
@@ -65,6 +66,69 @@ export const createLead = async (req: Request, res: Response, next: NextFunction
       success: true,
       message: 'Lead created successfully',
       data: newLead,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLeads = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { page = '1', limit = '10', status, priority, property_id } = req.query;
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: any = {};
+    if (status) where.status = status as LeadStatus;
+    if (priority) where.priority = priority as LeadPriority;
+    if (property_id) where.property_id = property_id as string;
+
+    const [leads, total] = await Promise.all([
+      prisma.lead.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.lead.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: leads,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLeadById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+
+    const lead = await prisma.lead.findUnique({
+      where: { id },
+      include: {
+        property: true, 
+      },
+    });
+
+    if (!lead) {
+      res.status(404).json({ success: false, message: 'Lead not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: lead,
     });
   } catch (error) {
     next(error);
