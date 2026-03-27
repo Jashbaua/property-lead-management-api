@@ -2,12 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import prisma from '../prisma';
 import { LeadPriority, LeadStatus } from '../generated/prisma/client';
+import { GoogleGenAI } from '@google/genai';
 
 const createLeadSchema = z.object({
   buyer_name: z.string().min(1, 'Buyer name is required'),
   email: z.email('Invalid email address format'),
   phone: z.string().min(10, 'Valid phone number is required'),
   property_id: z.uuid('Invalid property ID format'),
+  notes: z.string().optional(),
 });
 
 const updateLeadSchema = z.object({
@@ -34,7 +36,7 @@ export const createLead = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    const { buyer_name, email, phone, property_id } = validationResult.data;
+    const { buyer_name, email, phone, property_id, notes} = validationResult.data;
 
     const property = await prisma.property.findUnique({
       where: { id: property_id },
@@ -64,18 +66,73 @@ export const createLead = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
+    let suggestedPriority: LeadPriority = 'Cold';
+    let aiReason = 'Defaulted to Cold (AI scoring skipped or failed).';
+
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        const prompt = `
+          You are an expert real estate AI assistant. Evaluate this new lead and determine their priority.
+          Lead Name: ${buyer_name}
+          Property Interest: ${property.title} located in ${property.city} (Price: $${property.price})
+          Buyer Notes/Inquiry: "${notes || 'No additional notes provided.'}"
+        `;
+
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash", 
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseJsonSchema: {
+              type: "object",
+              properties: {
+                priority: {
+                  type: "string",
+                  enum: ["Hot", "Warm", "Cold"],
+                  description: "The priority of the lead."
+                },
+                reason: {
+                  type: "string",
+                  description: "One-line reason explaining why the Lead was classified with this priority"
+                }
+              },
+              required: ["priority", "reason"]
+            } as any, 
+          },
+        });
+
+        if (response.text) {
+          const parsedData = JSON.parse(response.text);
+          if (['Hot', 'Warm', 'Cold'].includes(parsedData.priority)) {
+            suggestedPriority = parsedData.priority as LeadPriority;
+            aiReason = parsedData.reason;
+          }
+        }
+      } catch (aiError) {
+        console.error("AI Lead Scoring Failed:", aiError);
+      }
+    }
+
     const newLead = await prisma.lead.create({
       data: {
         buyer_name,
         email,
         phone,
         property_id,
+        notes,
+        priority: suggestedPriority,
       },
     });
 
     res.status(201).json({
       success: true,
       message: 'Lead created successfully',
+      ai_insight: {
+        suggested_priority: suggestedPriority,
+        reason: aiReason,
+      },
       data: newLead,
     });
   } catch (error) {
